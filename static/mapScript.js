@@ -1,4 +1,4 @@
-const socket = io.connect('http://192.168.0.28:5000', {transports:['websocket']});
+const socket = io.connect('http://0.0.0.0:5005', {transports:['websocket']});
 
 // 역할 등록
 socket.on('connect', () => {

@@ -1,5 +1,5 @@
 // websocket 접속
-const socket = io.connect('http://192.168.0.28:5000', {transports:['websocket']});
+const socket = io.connect('http://0.0.0.0:5005', {transports:['websocket']});
 
 // 역할 등록
 socket.on('connect', () => {
@@ -7,6 +7,13 @@ socket.on('connect', () => {
     console.log('Uploader(A)로 등록되었습니다.');
 });
 
+// 서버에서 처리 완료 신호를 받으면 다음 프레임 전송
+socket.on('frame_processed', (data) => {
+    console.log(`프레임 ${data.frame_index} 처리 완료`);
+    if (video.currentTime < video.duration) {
+        video.dispatchEvent(new Event('seeked')); // 다음 프레임 추출
+    }
+});
 
 // main page text typing
 let target = document.querySelector('#dynamic');
@@ -83,7 +90,7 @@ dropBox.addEventListener('drop', function (e) {
 // 엔터키로 새 창에서 지도 검색
 function handleKeyPress(event) {
     if (event.key == 'Enter') {
-        openMapWindow();
+        //openMapWindow();
         processVideo();
     };
 };
@@ -102,11 +109,16 @@ function openMapWindow() {
         newWindow.moveTo(0, 0);
         newWindow.resizeTo(screen.width, screen.height);
     };
-    processVideo();
+    //processVideo();
 };
 
-
-
+// 동영상 로드 완료 시 초기화
+/*
+video.addEventListener('loadeddata', () => {
+    video.currentTime = 0; // 동영상 시작 시간 설정
+    console.log('동영상 로드 완료, 총 프레임 수:', totalFrames);
+});
+*/
 // 프레임 추출 및 전송
 function processVideo() {
     if (!uploadedFile) {
@@ -124,19 +136,7 @@ function processVideo() {
     let frameIndex = 0;
     const totalFrames = Math.floor(video.duration * 24);
 
-    // 동영상 로드 완료 시 초기화
-    video.addEventListener('loadeddata', () => {
-        video.currentTime = 0; // 동영상 시작 시간 설정
-        console.log('동영상 로드 완료, 총 프레임 수:', totalFrames);
-    });
-
-    // seeked 이벤트로 프레임 추출
-    video.addEventListener('seeked', () => {
-        if (video.currentTime >= video.duration) {
-            console.log('모든 프레임 전송 완료');
-            return;
-        }
-
+    while(video.currentTime < video.duration) {
         // 캔버스 크기 설정
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
@@ -152,14 +152,7 @@ function processVideo() {
 
         // 다음 프레임으로 이동
         video.currentTime += 1 / 24; // FPS 기준으로 1/24초 이동
-    });
-
-    // 서버에서 처리 완료 신호를 받으면 다음 프레임 전송
-    socket.on('frame_processed', (data) => {
-        console.log(`프레임 ${data.frame_index} 처리 완료`);
-        if (video.currentTime < video.duration) {
-            video.dispatchEvent(new Event('seeked')); // 다음 프레임 추출
-        }
-    });
-    video.currentTime = 0; // 첫 프레임 추출 시작
+    }
+    socket.emit('web2serverDone', {sentAll:1});
+    console.log('모든 프레임 전송 완료');
 }

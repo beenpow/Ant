@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, render_template
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_cors import CORS
 from queue import Queue, Full
@@ -11,8 +11,8 @@ import os
 import pathlib
 
 # Windows 경로 문제 해결
-temp = pathlib.PosixPath
-pathlib.PosixPath = pathlib.WindowsPath
+#temp = pathlib.PosixPath
+#pathlib.PosixPath = pathlib.WindowsPath
 
 # Flask 및 SocketIO 초기화
 app = Flask(__name__)
@@ -23,7 +23,8 @@ socketio = SocketIO(app, cors_allowed_origins="*", transports=["websocket"], pin
 model = torch.hub.load('ultralytics/yolov5', 'custom', path='./complete/best.pt', force_reload=True, skip_validation=True)
 
 # 작업 큐 생성 및 출력 폴더 생성
-frame_queue = Queue(maxsize=50)
+#frame_queue = Queue(maxsize=50)
+frame_list = []
 output_folder = './complete/outputFrame_v1'
 os.makedirs(output_folder, exist_ok=True)
 
@@ -37,13 +38,7 @@ uploader_sid = None  # Uploader(A) 클라이언트 SID
 # 프레임 처리 함수
 def process_frames():
     idx = 0  # 좌표 리스트 인덱스
-    while True:
-        frame_data = frame_queue.get()
-        if frame_data is None:  # 종료 신호
-            break
-
-        frame = frame_data['frame']
-        frame_index = frame_data['frame_index']
+    for frame, frame_index in frame_list:
 
         try:
             # base64 디코딩 및 이미지 로드
@@ -83,7 +78,7 @@ def process_frames():
                 socketio.emit("frame_processed", {"frame_index": frame_index}, to=uploader_sid)
         except Exception as e:
             print(f"프레임 처리 중 오류: {e}")
-        frame_queue.task_done()
+#        frame_queue.task_done()
 
 # 워커 쓰레드 시작
 worker_thread = Thread(target=process_frames, daemon=True)
@@ -129,15 +124,31 @@ def handle_frame(data):
     frame_index = data["frame_index"]
 
     try:
-        frame_queue.put({"frame": frame, "frame_index": frame_index}, block=True)
+        #frame_queue.put({"frame": frame, "frame_index": frame_index}, block=True)
+        frame_list.append({"frame": frame, "frame_index": frame_index})
         print(f"프레임 {frame_index} 큐에 추가")
     except Full:
         print("작업 큐가 가득 찼습니다. 프레임 추가를 건너뜁니다.")
 
+
+# web -> server 로 모든 frame 전달 완료
+@socketio.on("web2serverDone")
+def run_model(data):
+    if data['setnAll'] != 1:
+        print("smt wrong on run_model")
+        return
+    
+    # sort frames by index
+
+
+    # call 'process_frames'
+
+
 # 서버 종료 시 워커 종료
 @socketio.on("shutdown")
 def handle_shutdown():
-    frame_queue.put(None)  # 종료 신호
+    x = 3
+    
 
 if __name__ == "__main__":
-    socketio.run(app, host="0.0.0.0", port=5000)
+    socketio.run(app, host="0.0.0.0", port=5005)
