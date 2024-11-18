@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Object Detection</title>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <link href="../static/style.css" rel="stylesheet">
+</head>
+<body>
+    <div class="wrap">
+        <div class="iconTxt">
+            <h1>
+                <span class="material-icons-outlined">train</span>
+            </h1>
+            <p id="dynamic" class="lg-text"></p>
+            <p class="sm-text">KORAIL AI TEAM GROUP 4</p>
+        </div>
+        <div class="dropBox" id="dropBox">
+            <h3>이곳에 파일을 드롭해주세요.</h3>
+        </div>
+        <div class="inputContainer">
+            <div class="inputText">
+                <input type="text" id="locationInput" placeholder="   역명을 입력하세요." onkeypress="handleKeyPress(event)">
+                <button class="searchButton" onclick="openMapWindow()">
+                    <i class="fa-solid fa-crosshairs"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=b45f135532cc99840904ba7463051b7d&libraries=services"></script>
+    <script src="../static/main.js"></script>
+</body>
+</html>
