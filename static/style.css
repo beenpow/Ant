@@ -1,0 +1,105 @@
+/* 전체 초기화 셋팅 */
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: darkslateblue;
+}
+
+.wrap {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    text-align: center;
+}
+
+.material-icons-outlined {
+    font-size: 10rem;
+}
+
+.lg-text {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.sm-text {
+    font-size: 1.5rem;
+}
+
+#dynamic {
+    position: relative;
+    display: inline-block;
+}
+
+#dynamic::after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    right: -10px;
+    width: 4px;
+    height: 100%;
+    background-color: white;
+}
+
+#dynamic.active::after {
+    display: none;
+}
+
+.dropBox {
+    width: 25rem;
+    height: 150px;
+    max-width: 400px;
+    margin: .5rem;
+    overflow: auto;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    border-radius: 5px;
+    border: 4px dashed white;
+    user-select: none;
+    transition: background-color 0.3s;
+    cursor: pointer;
+}
+
+.dropBox.drag-over {
+    background-color: #e0e7ff;
+}
+
+.inputContainer {
+    max-width: 400px;
+    margin: .5rem;
+}
+
+#locationInput {
+    width: 15rem;
+    height: 2rem;
+    padding: 10px;
+    padding-right: 40px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 25px;
+    outline: none;
+}
+
+.searchButton {
+    position: absolute;
+    right: 90px;
+    bottom: 12px;
+    background: none;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+}
+
+.searchButton i {
+    font-size: 1.5rem;
+}
